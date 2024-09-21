@@ -55,4 +55,13 @@ button.addEventListener("click", async () => {
     util.bindAttribute(gl, posAttribLoc, posBuffer, 2, gl.FLOAT, false, 0, 0);
     util.bindAttribute(gl, texAttribLoc, texBuffer, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    
+    canvas.toBlob(blob => {
+        const blobURL = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = blobURL;
+        anchor.download = file.name.replace(/\.([^\.]+)$/, "");
+        anchor.click();
+        setTimeout(() => URL.revokeObjectURL(blobURL));
+    });
 });
