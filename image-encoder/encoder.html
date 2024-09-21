@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Encoder</title>
+    <script type="module" src="./js/encoder.js"></script>
+</head>
+<body>
+    <h1>Image Encoder</h1>
+    <p>Encode and decode the data in the image.</p>
+    <a href="decoder.html">Go to Decoder</a>
+    <hr>
+    <form onsubmit="return false">
+        <input type="file" id="file">
+        <fieldset>
+            <legend>Options</legend>
+            <label for="width">Width: </label>
+            <input type="number" id="width" value="300" min="1" step="1">
+        </fieldset>
+        <button id="encode" type="submit">Encode</button>
+    </form>
+    <canvas id="output" style="vertical-align: top; image-rendering: pixelated;"></canvas>
+</body>
+</html>
