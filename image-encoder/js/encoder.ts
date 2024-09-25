@@ -60,7 +60,7 @@ button.addEventListener("click", async () => {
         const blobURL = URL.createObjectURL(blob);
         const anchor = document.createElement("a");
         anchor.href = blobURL;
-        anchor.download = file.name.replace(/\.([^\.]+)$/, "");
+        anchor.download = file.name + ".png";
         anchor.click();
         setTimeout(() => URL.revokeObjectURL(blobURL));
     });
