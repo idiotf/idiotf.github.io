@@ -2,6 +2,7 @@ import * as util from "./webgl_utils.js";
 var Options;
 (function (Options) {
     Options.width = document.getElementById("width");
+    Options.compression = document.getElementById("compression");
 })(Options || (Options = {}));
 const fileInput = document.getElementById("file");
 const button = document.getElementById("encode");
@@ -35,7 +36,18 @@ button.addEventListener("click", async () => {
     const file = fileInput.files[0];
     if (!file)
         return fileInput.click();
-    const tempArr = [0, 0, 0, 0, ...new Uint8Array(await file.arrayBuffer())];
+    let blob;
+    if (Options.compression.value != "none")
+        try {
+            const gzip = file.stream().pipeThrough(new CompressionStream(Options.compression.value));
+            blob = await new Response(gzip).blob();
+        }
+        catch {
+            return alert("Incorrect compression algorithm");
+        }
+    else
+        blob = file;
+    const tempArr = [0, 0, 0, 0, ...new Uint8Array(await blob.arrayBuffer())];
     canvas.width = +Options.width.value;
     canvas.height = Math.ceil(Math.ceil(tempArr.length / 3) / canvas.width);
     view.setUint32(0, canvas.width * canvas.height * 3 - tempArr.length);
@@ -55,12 +67,12 @@ button.addEventListener("click", async () => {
     util.bindAttribute(gl, posAttribLoc, posBuffer, 2, gl.FLOAT, false, 0, 0);
     util.bindAttribute(gl, texAttribLoc, texBuffer, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    canvas.toBlob(blob => {
+    canvas.toBlob(async (blob) => {
         const blobURL = URL.createObjectURL(blob);
         const anchor = document.createElement("a");
         anchor.href = blobURL;
         anchor.download = file.name + ".png";
         anchor.click();
         setTimeout(() => URL.revokeObjectURL(blobURL));
-    });
+    }, "image/png", 1);
 });

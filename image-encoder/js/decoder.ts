@@ -1,8 +1,9 @@
 import * as util from "./webgl_utils.js";
 namespace Options {
+    export const decompression = document.getElementById("decompression") as HTMLSelectElement;
 }
 const fileInput = document.getElementById("file") as HTMLInputElement;
-const button = document.getElementById("encode") as HTMLButtonElement;
+const button = document.getElementById("decode") as HTMLButtonElement;
 const canvas = document.getElementById("output") as HTMLCanvasElement;
 const gl = canvas.getContext("webgl");
 const [vertexShaderSource, fragmentShaderSource] = await Promise.all([
@@ -78,11 +79,20 @@ button.addEventListener("click", async () => {
     const padding = view.getUint32(0);
     const dataPad = data.subarray(4, data.length - padding);
 
-    const blob = new Blob([dataPad]);
-    const blobURL = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = blobURL;
-    anchor.download = file.name.replace(/\.([^\.]+)$/, "");
-    anchor.click();
-    setTimeout(() => URL.revokeObjectURL(blobURL));
+    {
+        const sourceBlob = new Blob([dataPad]);
+        let blob: Blob;
+        if(Options.decompression.value != "none") try {
+            const gzip = sourceBlob.stream().pipeThrough(new DecompressionStream(Options.decompression.value as CompressionFormat));
+            blob = await new Response(gzip).blob();
+        } catch {
+            return alert("Incorrect decompression algorithm");
+        } else blob = sourceBlob;
+        const blobURL = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = blobURL;
+        anchor.download = file.name.replace(/\.([^\.]+)$/, "");
+        anchor.click();
+        setTimeout(() => URL.revokeObjectURL(blobURL));
+    }
 });
