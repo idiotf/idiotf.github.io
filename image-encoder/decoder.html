@@ -15,8 +15,14 @@
         <input type="file" id="file">
         <fieldset>
             <legend>Options</legend>
+            <label for="decompression">Decompression: </label>
+            <select id="decompression">
+                <option value="none" selected>None</option>
+                <option value="gzip">GZip</option>
+                <option value="deflate">Deflate</option>
+            </select>
         </fieldset>
-        <button id="encode" type="submit">Decode</button>
+        <button id="decode" type="submit">Decode</button>
     </form>
     <canvas id="output" style="vertical-align: top; image-rendering: pixelated;"></canvas>
 </body>

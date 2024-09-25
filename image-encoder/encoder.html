@@ -17,6 +17,13 @@
             <legend>Options</legend>
             <label for="width">Width: </label>
             <input type="number" id="width" value="300" min="1" step="1">
+            <br>
+            <label for="compression">Compression: </label>
+            <select id="compression">
+                <option value="none" selected>None</option>
+                <option value="gzip">GZip</option>
+                <option value="deflate">Deflate</option>
+            </select>
         </fieldset>
         <button id="encode" type="submit">Encode</button>
     </form>
