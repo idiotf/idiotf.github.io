@@ -50,10 +50,11 @@ button.addEventListener("click", async () => {
     const tempArr = [0, 0, 0, 0, ...new Uint8Array(await blob.arrayBuffer())];
     canvas.width = +Options.width.value;
     canvas.height = Math.ceil(Math.ceil(tempArr.length / 3) / canvas.width);
+    const random = new Array(canvas.width * canvas.height - tempArr.length).fill(null).map(() => Math.floor(Math.random() * 256));
     view.setUint32(0, canvas.width * canvas.height * 3 - tempArr.length);
     tempArr.splice(0, 4, ...new Uint8Array(view.buffer));
     tempArr.length = canvas.width * canvas.height * 3;
-    const arr = new Uint8Array(tempArr);
+    const arr = new Uint8Array([...tempArr, ...random]);
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
