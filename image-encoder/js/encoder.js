@@ -47,13 +47,14 @@ button.addEventListener("click", async () => {
         }
     else
         blob = file;
-    const tempArr = [0, 0, 0, 0, ...new Uint8Array(await blob.arrayBuffer())];
+    const data = new Uint8Array(await blob.arrayBuffer());
+    const tempArr = [0, 0, 0, 0, ...data];
     canvas.width = +Options.width.value;
     canvas.height = Math.ceil(Math.ceil(tempArr.length / 3) / canvas.width);
+    const random = new Array(canvas.width * canvas.height * 3 - tempArr.length).fill(null).map(() => data[Math.floor(Math.random() * data.length)]);
     view.setUint32(0, canvas.width * canvas.height * 3 - tempArr.length);
     tempArr.splice(0, 4, ...new Uint8Array(view.buffer));
-    tempArr.length = canvas.width * canvas.height * 3;
-    const arr = new Uint8Array(tempArr);
+    const arr = new Uint8Array([...tempArr, ...random]);
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
