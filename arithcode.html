@@ -1,159 +1,115 @@
-<!doctype html><html onclick="document.documentElement.requestFullscreen(),navigator.wakeLock.request('screen'),screen.orientation.lock('landscape-primary')"lang=ko><meta charset=utf-8><style>@keyframes e{to{transform:translate(0,calc(100vh - 5300px))}}body{user-select:none;touch-action:none;position:fixed;background:#121314;margin:9px;animation:e 42.2s infinite linear;font:14px/19px consolas,monospace;white-space:pre}e{color:#c9d1d9}t{color:#d4d4d4}r{color:#79c0ff}n{color:#4ec9b0}o{color:#bbbebf}c{color:#569cd6}d{color:#c586c0}l{color:#ffa657}h{color:#a5d6ff}g{color:#ff7b72}m{color:#d2a8ff}v{color:#b5cea8}f{color:#8b949e}</style><d>import <e>{ ArithmeticRange, ArithmeticValue } <d>from <h>'./values'
-<d>import <e>{ Fraction } <d>from <h>'./fraction'
-<d>import type <e>{ DistributionLike } <d>from <h>'./protocol'
+<!doctype html><html onclick="document.documentElement.requestFullscreen(),navigator.wakeLock.request('screen'),screen.orientation.lock('landscape-primary')"lang=ko><meta charset=utf-8><style>@keyframes e{to{transform:translate(0,calc(100vh - 5623px))}}body{user-select:none;touch-action:none;position:fixed;background:#121314;margin:9px;animation:e 52.69s infinite linear;font:14px/19px consolas,monospace;white-space:pre}e{color:#c9d1d9}t{color:#d4d4d4}r{color:#79c0ff}n{color:#4ec9b0}o{color:#bbbebf}c{color:#569cd6}d{color:#ffa657}l{color:#c586c0}g{color:#a5d6ff}h{color:#ff7b72}m{color:#d2a8ff}x{color:#b5cea8}f{color:#8b949e}</style><l>import<e> { ArithmeticRange, ArithmeticValue }<l> from<g> './values'<l>
+import<e> { Fraction }<l> from<g> './fraction'<l>
+import type<e> { DistributionLike }<l> from<g> './protocol'<h>
 
-<g>type <n>_TupleIndicesRecursive<o><
-  <n>T <c>extends <n>unknown<o>[],
-  <n>R <c>extends <n>unknown<o>[],
-> <t>= <n>T<o>[<h>'length'<o>] <c>extends <n>R<o>[<h>'length'<o>]
-  <t>? <n>R<o>[<n>number<o>]
-  <t>: <n>_TupleIndicesRecursive<o><<n>T<o>, [<t>...<n>R<o>, <n>R<o>[<h>'length'<o>]]>
+type<n> _TupleIndicesRecursive<o><<n>
+  T<c> extends<n> unknown<o>[],<n>
+  R<c> extends<n> unknown<o>[],
+> <t>=<n> T<o>[<g>'length'<o>] <c>extends<n> R<o>[<g>'length'<o>]<t>
+  ?<n> R<o>[<n>number<o>]<t>
+  :<n> _TupleIndicesRecursive<o><<n>T<o>, [<t>...<n>R<o>, <n>R<o>[<g>'length'<o>]]><h>
 
-<g>type <n>TupleIndices<o><<n>T <c>extends <n>unknown<o>[]> <t>= <n>number <c>extends <n>T<o>[<h>'length'<o>]
-  <t>? <n>number
-  <t>: <n>_TupleIndicesRecursive<o><<n>T<o>, []>
+type<n> TupleIndices<o><<n>T<c> extends<n> unknown<o>[]> <t>=<n> number<c> extends<n> T<o>[<g>'length'<o>]<t>
+  ?<n> number<t>
+  :<n> _TupleIndicesRecursive<o><<n>T<o>, []><h>
 
-<g>const <r>zeroFraction <t>= <c>new <n>ArithmeticValue<o>(<v>0<g>n<o>)
-<g>const <r>oneFraction <t>= <c>new <n>ArithmeticValue<o>(<v>1<g>n<o>)
+const<r> zeroFraction<t> =<f> /* #__PURE__ */<c> new<n> ArithmeticValue<o>(<x>0<h>n<o>)<h>
+const<r> oneFraction<t> =<f> /* #__PURE__ */<c> new<n> ArithmeticValue<o>(<x>1<h>n<o>)<l>
 
-<d>export <c>abstract <g>class <n>DistributionSerializerPeer<o><
-  <n>T<o>,
-  <n>TDistOutput <t>= <n>unknown<o>,
-> <c>implements <n>DistributionLike<o><<n>T<o>> {
-  <c>private <e>currentInput<t>: <n>number<o>[] <t>| <n>ArithmeticValue <t>| <n>null <t>= <c>null
-  private <e>currentOutput<t>: <n>ArithmeticRange <t>| <n>number<o>[] <t>| <n>null <t>= <c>null
-  private <e>currentArrIdx <t>= <v>0
-  <c>private <e>currentBind<t>: <n>DistributionSerializerPeer<o><<n>unknown<o>> <t>| <n>null <t>= <c>null
+export type<e> { <n>DistributionCtx<e> }<h>
+class<n> DistributionCtx<o> {<c>
+  private<e> currentArrIdx<t> =<x> 0<h>
 
-  <m>encode<o>(<l>data<t>: <n>T<o>) <e>{
-    <g>const <r>serialized <t>= <r>this<e>.<m>serialize<e>(<l>data<e>)
-    <g>const <r>output <t>= <c>new <n>ArithmeticRange<e>()
+  constructor<o>(<c>
+    private<d> currentInput<t>:<n> number<o>[] <t>|<n> ArithmeticValue<t> |<n> null<o>,<c>
+    private<d> currentOutput<t>:<n> ArithmeticRange<t> |<n> number<o>[] <t>|<n> null<o>,
+  ) <e>{}<c>
 
-    <g>let<e> expectedLength
-    <d>try<e> {
-      <r>this<e>.currentInput <t>= <r>serialized
-      <r>this<e>.currentOutput <t>= <r>output
-      <r>this<e>.currentArrIdx <t>= <v>0
+  private<m> encodeRange<o>(<d>i<t>:<n> number<o>, <d>fractionRange<t>:<n> ArithmeticValue<o>[]) <e>{<h>
+    const<r> range<t> =<r> this<e>.currentOutput<l> as<n> ArithmeticRange<h>
+    const<r> low<t> =<d> fractionRange<e>[<d>i<t> -<x> 1<e>] <t>??<r> zeroFraction<h>
+    const<r> high<t> =<d> fractionRange<e>[<d>i<e>] <t>??<r> oneFraction<h>
 
-      <r>this<e>.<m>distribution<e>()
-      expectedLength <t>= <r>this<e>.currentArrIdx
-    } <d>finally<e> {
-      <r>this<e>.currentInput <t>= <c>null
-      <r>this<e>.currentOutput <t>= <c>null
-      <r>this<e>.currentArrIdx <t>= <v>0
-<e>    }
-
-    <g>const <r>actualLength <t>= <r>serialized<e>.<r>length
-    <d>if<e> (expectedLength <t>!== <r>actualLength<e>) {
-      <d>throw <n>RangeError<e>(
-        <h>`Too large encoding input ` <t>+
-          <h>`(the expected input length was <c>${<e>expectedLength<c>}<h>, ` <t>+
-          <h>`received <c>${<r>actualLength<c>}<h>)`<e>,
-      )
-    }
-
-    <d>return <r>output
-<e>  }
-
-  <m>decode<o>(<l>value<t>: <n>Fraction<o>) <e>{
-    <g>const <r>output<t>: <n>number<e>[] <t>=<e> []
-    <g>let<e> distributionOutput
-
-    <d>try<e> {
-      <r>this<e>.currentInput <t>= <c>new <n>ArithmeticValue<e>(<l>value<e>)
-      <r>this<e>.currentOutput <t>= <r>output
-
-<e>      distributionOutput <t>= <r>this<e>.<m>distribution<e>()
-    } <d>finally<e> {
-      <r>this<e>.currentInput <t>= <c>null
-      <r>this<e>.currentOutput <t>= <c>null
-<e>    }
-
-    <d>return <r>this<e>.<m>deserialize<e>(<r>output<e>, distributionOutput)
-  }
-
-  <c>private <m>encodeRange<o>(<l>i<t>: <n>number<o>, <l>fractionRange<t>: <n>ArithmeticValue<o>[]) <e>{
-    <g>const <r>range <t>= <r>this<e>.currentOutput <d>as <n>ArithmeticRange
-    <g>const <r>low <t>= <l>fractionRange<e>[<l>i <t>- <v>1<e>] <t>?? <r>zeroFraction
-    <g>const <r>high <t>= <l>fractionRange<e>[<l>i<e>] <t>?? <r>oneFraction
-
-    <g>const<e> {
+    const<e> {
       den: <r>reducedDen<e>,
       a: <r>reducedLow<e>,
       b: <r>reducedHigh<e>,
-    } <t>= <n>Fraction<e>.<m>commonDenominator<e>(<r>low<e>, <r>high<e>)
+    } <t>=<n> Fraction<e>.<m>commonDenominator<e>(<r>low<e>, <r>high<e>)<l>
 
-    <d>if<e> (<r>reducedLow <t>=== <r>reducedHigh<e>) {
-      <d>throw <n>RangeError<e>(
-        <h>`Invalid encoding input data at index <c>${<r>this<t>.<e>currentArrIdx<c>}<h>: ` <t>+
-          <h>`the distribution range of <c>${<l>i<c>}<h> has zero size`<e>,
+    if<e> (<r>reducedLow<t> ===<r> reducedHigh<e>) {<l>
+      throw<n> RangeError<e>(<g>
+        `Invalid encoding input data at index <c>${<r>this<t>.<e>currentArrIdx<c>}<g>: `<t> +<g>
+          `the distribution range of <c>${<d>i<c>}<g> has zero size`<e>,
       )
-    }
+    }<h>
 
-    <g>const <r>distancePer1 <t>= <r>range<e>.high <t>- <r>range<e>.low
-    <f>// === (range.high * reducedDen - range.low * reducedDen) / reducedDen
+    const<r> distancePer1<t> =<r> range<e>.high<t> -<r> range<e>.low<f>
+    // === (range.high * reducedDen - range.low * reducedDen) / reducedDen<r>
 
-    <r>range<e>.den <t>*= <r>reducedDen
-    <r>range<e>.low <t>*= <r>reducedDen
-    <r>range<e>.high <t>*= <r>reducedDen
+    range<e>.den<t> *=<r> reducedDen
+    range<e>.low<t> *=<r> reducedDen
+    range<e>.high<t> *=<r> reducedDen
 
-    <r>range<e>.high <t>= <r>range<e>.low <t>+ <r>distancePer1 <t>* <r>reducedHigh
-    <r>range<e>.low <t>= <r>range<e>.low <t>+ <r>distancePer1 <t>* <r>reducedLow
-<e>  }
+    range<e>.high<t> =<r> range<e>.low<t> +<r> distancePer1<t> *<r> reducedHigh
+    range<e>.low<t> =<r> range<e>.low<t> +<r> distancePer1<t> *<r> reducedLow<e>
+  }<c>
 
-  <c>private <m>decodeRange<o>(
-    <l>value<t>: <n>ArithmeticValue<o>,
-    <l>fractionRange<t>: <n>ArithmeticValue<o>[],
-  ) <e>{
-    <g>const <r>output <t>= <r>this<e>.currentOutput <d>as <n>number<e>[]
+  private<m> decodeRange<o>(<d>
+    value<t>:<n> ArithmeticValue<o>,<d>
+    fractionRange<t>:<n> ArithmeticValue<o>[],
+  ) <e>{<h>
+    const<r> output<t> =<r> this<e>.currentOutput<l> as<n> number<e>[]<h>
 
-    <g>let<e> matchedIdx <t>= <l>fractionRange<e>.<r>length
-    <g>let<e> matchedPrev <t>= <l>fractionRange<e>[matchedIdx <t>- <v>1<e>] <t>?? <r>zeroFraction
-    <g>let<e> matchedCurrent <t>= <r>oneFraction
+    let<e> matchedIdx<t> =<d> fractionRange<e>.<r>length<h>
+    let<e> matchedPrev<t> =<d> fractionRange<e>[matchedIdx<t> -<x> 1<e>] <t>??<r> zeroFraction<h>
+    let<e> matchedCurrent<t> =<r> oneFraction<h>
 
-    <g>let<e> prev <t>= <r>zeroFraction
-    <d>for<e> (<g>let<e> i <t>= <v>0<e>; i <t>< <l>fractionRange<e>.<r>length<e>; <t>++<e>i) {
-      <g>const <r>current <t>= <l>fractionRange<e>[i]<t>!
-      <d>try<e> {
-        <d>if<e> (<l>value<e>.<m>isGreaterThanOrEqualTo<e>(<r>current<e>)) {
-          <d>continue
-<e>        }
+    let<e> prev<t> =<r> zeroFraction<l>
+    for<e> (<h>let<e> i<t> =<x> 0<e>; i<t> <<d> fractionRange<e>.<r>length<e>; <t>++<e>i) {<h>
+      const<r> current<t> =<d> fractionRange<e>[i]<t>!<l>
 
-        matchedIdx <t>=<e> i
-        matchedPrev <t>=<e> prev
-        matchedCurrent <t>= <r>current
-        <d>break
-<e>      } <d>finally<e> {
-        <f>// eslint-disable-next-line no-useless-assignment
-<e>        prev <t>= <r>current
-<e>      }
-    }
+      if<e> (<d>value<e>.<m>isGreaterThanOrEqualTo<e>(<r>current<e>)) {
+        prev<t> =<r> current<l>
+        continue<e>
+      }
 
-    <g>const<e> { <r>den<e>, <r>a<e>, <r>b<e> } <t>= <n>Fraction<e>.<m>commonDenominator<e>(
+      matchedIdx<t> =<e> i
+      matchedPrev<t> =<e> prev
+      matchedCurrent<t> =<r> current<l>
+      break<e>
+    }<h>
+
+    const<e> { <r>den<e>, <r>a<e>, <r>b<e> } <t>=<n> Fraction<e>.<m>commonDenominator<e>(
       matchedPrev,
       matchedCurrent,
-    )
-    <l>value<e>.num <t>= <l>value<e>.num <t>* <r>den <t>- <r>a <t>* <l>value<e>.den
-    <l>value<e>.den <t>*= <r>b <t>- <r>a
+    )<d>
+    value<e>.num<t> =<d> value<e>.num<t> *<r> den<t> -<r> a<t> *<d> value<e>.den<d>
+    value<e>.den<t> *=<r> b<t> -<r> a
 
-    <r>output<e>.<m>push<e>(matchedIdx)
-    <d>return<e> matchedIdx
-  }
+    output<e>.<m>push<e>(matchedIdx)<l>
+    return<e> matchedIdx
+  }<m>
 
-  <m>bind<o>(<l>to<t>: <n>DistributionSerializerPeer<o><<n>unknown<o>>) <e>{
-    <d>try<e> {
-      <r>this<e>.currentBind <t>= <l>to
-      <d>return <r>this<e>.<m>distribution<e>()
-    } <d>finally<e> {
-      <r>this<e>.currentBind <t>= <c>null
-<e>    }
-  }
+  use<o><<n>T<o>>(<d>distribution<t>:<n> DistributionSerializerPeer<o><<n>unknown<o>, <n>T<o>>) <e>{<l>
+    if<e> (<t>!<e>(<d>distribution<c> instanceof<n> DistributionSerializerPeer<e>)) {<l>
+      throw<n> TypeError<e>(<g>
+        'DistributionCtx.use(): '<t> +<g>
+          'The first argument must be DistributionSerializerPeer'<e>,
+      )
+    }<l>
 
-  <f>/**
-   * <g>@example
-<f>   * class MyDistribution extends Distribution {
-   *   protected override distribution() {
-   *     const kind = this.range([
+    if<e> (<r>this<e>.currentInput<t> ===<c> null<e>) {<l>
+      throw<n> TypeError<e>(<g>'Cannot call DistributionCtx.use() after disposed'<e>)
+    }<l>
+
+    return<d> distribution<e>[<g>'distribution'<e>](<r>this<e>)
+  }<f>
+
+  /**
+   * <h>@example<f>
+   * class MyDistribution extends Distribution {
+   *   protected override distribution(ctx: DistributionCtx) {
+   *     const kind = ctx.range([
    *       // Vegetables
    *       frac(1, 5),
    *       // Fast foods
@@ -161,7 +117,7 @@
    *       // Fruits
    *     ])
    *     if (kind === 2) {
-   *       const fruit = this.range([
+   *       const fruit = ctx.range([
    *         // Apple
    *         0.25,
    *         // Banana
@@ -174,105 +130,165 @@
    *     }
    *   }
    * }
-   */
-  <c>protected <m>range<o><<c>const <n>T <c>extends readonly<o> (<n>number <t>| <n>Fraction<o>)[]>(
-    <l>range<t>: <n>T<o>,
-  )<t>: <n>TupleIndices<o><[<v>0<o>, <t>...<n>T<o>]> <e>{
-    <d>if<e> (<r>this<e>.currentBind) {
-      <d>return <r>this<e>.currentBind.<m>range<e>(<l>range<e>)
+   */<m>
+  range<o><<c>const<n> T<c> extends readonly<o> (<n>number<t> |<n> Fraction<o>)[]>(<d>
+    range<t>:<n> T<o>,
+  )<t>:<n> TupleIndices<o><[<x>0<o>, <t>...<n>T<o>]> <e>{<l>
+    if<e> (<t>!<n>Array<e>.<m>isArray<e>(<d>range<e>)) {<l>
+      throw<n> TypeError<e>(<g>
+        'DistributionCtx.range(): The range must be '<t> +<g>
+          'an array of numbers or Fraction instances'<e>,
+      )
+    }<l>
+    for<e> (<h>let<e> i<t> =<x> 0<e>; i<t> <<d> range<e>.<r>length<e>; <t>++<e>i) {<l>
+      if<e> (<t>!<e>(i<c> in<d> range<e>)) {<l>
+        throw<n> TypeError<e>(<g>
+          `DistributionCtx.range(): The range must not have empty item `<t> +<g>
+            `(received empty item at index <c>${<e>i<c>}<g>)`<e>,
+        )
+      }
+    }<l>
+
+    if<e> (<r>this<e>.currentInput<t> ===<c> null<e>) {<l>
+      throw<n> TypeError<e>(<g>'Cannot call DistributionCtx.range() after disposed'<e>)
+    }<h>
+
+    const<r> fractionRange<t> =<d> range<e>.<m>map<e>((<d>v<e>) <h>=><c> new<n> ArithmeticValue<e>(<d>v<e>))<r>
+
+    fractionRange<e>.<m>forEach<e>((<d>v<e>, <d>i<e>) <h>=><e> {<l>
+      if<e> (<t>!<d>v<e>.isValid) {<l>
+        throw<n> RangeError<e>(<g>
+          `Invalid distribution edge at index <c>${<d>i<c>}<g>: `<t> +<g>
+            `<c>${<d>range<t>[<d>i<t>]!<c>}<g> is out of range 0 ~ 1 (provided <c>${<d>range<t>.<m>join<t>(<g>', '<t>)<c>}<g>)`<e>,
+        )
+      }<l>
+
+      if<e> (<d>i<t> ===<x> 0<e>) <l>return<h>
+      const<r> prev<t> =<r> fractionRange<e>[<d>i<t> -<x> 1<e>]<t>!<l>
+      if<e> (<r>prev<e>.<m>isGreaterThan<e>(<d>v<e>)) {<l>
+        throw<n> TypeError<e>(<g>
+          `Invalid distribution edges at index <c>${<d>i<t> - <x>1<c>}<g> / <c>${<d>i<c>}<g>: `<t> +<g>
+            `<c>${<d>range<t>[<d>i<t> - <x>1<t>]!<c>}<g> > <c>${<d>range<t>[<d>i<t>]!<c>}<g> (provided <c>${<d>range<t>.<m>join<t>(<g>', '<t>)<c>}<g>)`<e>,
+        )
+      }
+    })<l>
+
+    if<e> (<n>Array<e>.<m>isArray<e>(<r>this<e>.currentInput)) {<l>
+      if<e> (<r>this<e>.currentArrIdx<t> >=<r> this<e>.currentInput.<r>length<e>) {<l>
+        throw<n> RangeError<e>(<g>
+          `Too small encoding input (received `<t> +<g>
+            `(<c>${<r>this<t>.<e>currentInput<t>.<r>length<c>}<g>) [<c>${<r>this<t>.<e>currentInput<t>.<m>join<t>(<g>', '<t>)<c>}<g>])`<e>,
+        )
+      }<h>
+
+      const<r> i<t> =<r> this<e>.currentInput[<r>this<e>.currentArrIdx]<t>!<l>
+      if<e> (<t>!<n>Number<e>.<m>isInteger<e>(<r>i<e>) <t>||<r> i<t> <<x> 0<t> ||<r> fractionRange<e>.<r>length<t> <<r> i<e>) {<l>
+        throw<n> RangeError<e>(<g>
+          `Invalid encoding input data at index <c>${<r>this<t>.<e>currentArrIdx<c>}<g>: `<t> +<g>
+            `expected integer between 0 ~ <c>${<r>fractionRange<t>.<r>length<c>}<g>, `<t> +<g>
+            `received <c>${<r>i<c>}<g>`<e>,
+        )
+      }<r>
+
+      this<e>.<m>encodeRange<e>(<r>i<e>, <r>fractionRange<e>)<t>
+      ++<r>this<e>.currentArrIdx<l>
+
+      return<r> i<e>
+    } <l>else<e> {<h>
+      const<r> value<t> =<r> this<e>.currentInput<l>
+      if<e> (<t>!<r>value<e>.isValid) {<l>
+        throw<n> RangeError<e>(<g>
+          `Decoding input is out of range 0 ~ 1 (received <c>${<r>value<c>}<g>)`<e>,
+        )
+      }<l>
+      return<r> this<e>.<m>decodeRange<e>(<r>value<e>, <r>fractionRange<e>)
     }
+  }<o>
+}<l>
 
-    <d>if<e> (<r>this<e>.currentInput <t>=== <c>null<e>) {
-      <d>throw <n>TypeError<e>(<h>'Cannot call Distribution.range() when idle state'<e>)
-    }
+export<c> abstract<h> class<n> DistributionSerializerPeer<o><<n>
+  T<o>,<n>
+  TDistOutput<t> =<n> unknown<o>,
+> <c>implements<n> DistributionLike<o><<n>T<o>> {<m>
+  encode<o>(<d>data<t>:<n> T<o>) <e>{<h>
+    const<r> serialized<t> =<r> this<e>.<m>serialize<e>(<d>data<e>)<l>
+    if<e> (<t>!<n>Array<e>.<m>isArray<e>(<r>serialized<e>)) {<l>
+      throw<n> TypeError<e>(<g>
+        'The serialized encoding input must be an array of numbers'<e>,
+      )
+    }<h>
 
-    <g>const <r>fractionRange <t>= <l>range<e>.<m>map<e>((<l>v<e>) <g>=> <c>new <n>ArithmeticValue<e>(<l>v<e>))
+    const<r> output<t> =<c> new<n> ArithmeticRange<e>()<h>
+    const<r> ctx<t> =<c> new<n> DistributionCtx<e>(<r>serialized<e>, <r>output<e>)<l>
+    try<e> {<r>
+      this<e>.<m>distribution<e>(<r>ctx<e>)
+    } <l>finally<e> {<r>
+      ctx<e>[<g>'currentInput'<e>] <t>=<c> null<e>
+    }<h>
 
-    <r>fractionRange<e>.<m>forEach<e>((<l>v<e>, <l>i<e>) <g>=><e> {
-      <d>if<e> (<t>!<l>v<e>.isValid) {
-        <d>throw <n>RangeError<e>(
-          <h>`Invalid distribution edge at index <c>${<l>i<c>}<h>: ` <t>+
-            <h>`<c>${<l>v<c>}<h> is out of range 0 ~ 1 (provided <c>${<l>range<t>.<m>join<t>(<h>', '<t>)<c>}<h>)`<e>,
-        )
-      }
+    const<r> expectedLength<t> =<r> ctx<e>[<g>'currentArrIdx'<e>]<h>
+    const<r> actualLength<t> =<r> serialized<e>.<r>length<l>
+    if<e> (<r>expectedLength<t> !==<r> actualLength<e>) {<l>
+      throw<n> RangeError<e>(<g>
+        `Too large encoding input `<t> +<g>
+          `(the expected input length was <c>${<r>expectedLength<c>}<g>, `<t> +<g>
+          `received <c>${<r>actualLength<c>}<g>)`<e>,
+      )
+    }<l>
 
-      <d>if<e> (<l>i <t>=== <v>0<e>) <d>return
-      <g>const <r>prev <t>= <r>fractionRange<e>[<l>i <t>- <v>1<e>]<t>!
-      <d>if<e> (<r>prev<e>.<m>isGreaterThan<e>(<l>v<e>)) {
-        <d>throw <n>TypeError<e>(
-          <h>`Invalid distribution edges at index <c>${<l>i<t> - <v>1<c>}<h> / <c>${<l>i<c>}<h>: ` <t>+
-            <h>`<c>${<r>prev<c>}<h> > <c>${<l>v<c>}<h> (provided <c>${<l>range<t>.<m>join<t>(<h>', '<t>)<c>}<h>)`<e>,
-        )
-      }
-    })
+    return<r> output<e>
+  }<m>
 
-    <d>if<e> (<n>Array<e>.<m>isArray<e>(<r>this<e>.currentInput)) {
-      <g>const <r>i <t>= <r>this<e>.currentInput[<r>this<e>.currentArrIdx]
-      <d>if<e> (<r>i <t>=== <c>undefined<e>) {
-        <d>throw <n>RangeError<e>(
-          <h>`Too small encoding input (received ` <t>+
-            <h>`(<c>${<r>this<t>.<e>currentInput<t>.<r>length<c>}<h>) [<c>${<r>this<t>.<e>currentInput<t>.<m>join<t>(<h>', '<t>)<c>}<h>])`<e>,
-        )
-      }
-      <d>if<e> (<t>!<n>Number<e>.<m>isInteger<e>(<r>i<e>) <t>|| <r>i <t>< <v>0 <t>|| <r>fractionRange<e>.<r>length <t>< <r>i<e>) {
-        <d>throw <n>RangeError<e>(
-          <h>`Invalid encoding input data at index <c>${<r>this<t>.<e>currentArrIdx<c>}<h>: ` <t>+
-            <h>`expected integer between 0 ~ <c>${<r>fractionRange<t>.<r>length<c>}<h>, ` <t>+
-            <h>`received <c>${<r>i<c>}<h>`<e>,
-        )
-      }
+  decode<o>(<d>value<t>:<n> Fraction<o>) <e>{<h>
+    const<r> output<t>:<n> number<e>[] <t>=<e> []<h>
 
-      <r>this<e>.<m>encodeRange<e>(<r>i<e>, <r>fractionRange<e>)
-      <t>++<r>this<e>.currentArrIdx
+    const<r> ctx<t> =<c> new<n> DistributionCtx<e>(<c>new<n> ArithmeticValue<e>(<d>value<e>), <r>output<e>)<h>
+    let<e> distributionOutput<l>
+    try<e> {
+      distributionOutput<t> =<r> this<e>.<m>distribution<e>(<r>ctx<e>)
+    } <l>finally<e> {<r>
+      ctx<e>[<g>'currentInput'<e>] <t>=<c> null<e>
+    }<l>
 
-      <d>return <r>i
-<e>    } <d>else<e> {
-      <g>const <r>value <t>= <r>this<e>.currentInput
-      <d>if<e> (<t>!<r>value<e>.isValid) {
-        <d>throw <n>RangeError<e>(
-          <h>`Decoding input is out of range 0 ~ 1 (received <c>${<r>value<c>}<h>)`<e>,
-        )
-      }
-      <d>return <r>this<e>.<m>decodeRange<e>(<r>value<e>, <r>fractionRange<e>)
-    }
-  }
+    return<r> this<e>.<m>deserialize<e>(<r>output<e>, distributionOutput)
+  }<f>
 
-  <f>/**
-   * <g>@example
-<f>   * class MyDistribution extends Distribution {
-   *   protected override distribution() {
-   *     this.range([0.333, 0.667])
-   *     this.range([frac(1, 3), frac(2, 3)])
+  /**
+   * <h>@example<f>
+   * class MyDistribution extends Distribution {
+   *   protected override distribution(ctx: DistributionCtx) {
+   *     ctx.range([0.333, 0.667])
+   *     ctx.range([frac(1, 3), frac(2, 3)])
    *     // ...
    *   }
    *   // ...
    * }
-   */
-  <c>protected abstract <m>distribution<o>()<t>: <n>TDistOutput
+   */<c>
+  protected abstract<m> distribution<o>(<d>ctx<t>:<n> DistributionCtx<o>)<t>:<n> TDistOutput<c>
 
-  <c>protected abstract <m>serialize<o>(<l>input<t>: <n>T<o>)<t>: <n>number<o>[]
-  <c>protected abstract <m>deserialize<o>(
-    <l>serialized<t>: <n>number<o>[],
-    <l>distributionOutput<t>: <n>TDistOutput<o>,
-  )<t>: <n>T<o>
-}
+  protected abstract<m> serialize<o>(<d>input<t>:<n> T<o>)<t>:<n> number<o>[]<c>
+  protected abstract<m> deserialize<o>(<d>
+    serialized<t>:<n> number<o>[],<d>
+    distributionOutput<t>:<n> TDistOutput<o>,
+  )<t>:<n> T<o>
+}<l>
 
-<d>export <c>abstract <g>class <n>DistributionSerializer<o><
-  <n>T<o>,
-> <c>extends <n>DistributionSerializerPeer<o><<n>T<o>, <n>T<o>> {
-  <c>protected override <m>deserialize<o>(<l>_<t>: <n>unknown<o>, <l>output<t>: <n>T<o>) <e>{
-    <d>return <l>output
-<e>  }<o>
-}
+export<c> abstract<h> class<n> DistributionSerializer<o><<n>
+  T<o>,
+> <c>extends<n> DistributionSerializerPeer<o><<n>T<o>, <n>T<o>> {<c>
+  protected override<m> deserialize<o>(<d>_<t>:<n> unknown<o>, <d>output<t>:<n> T<o>) <e>{<l>
+    return<d> output<e>
+  }<o>
+}<l>
 
-<d>export <c>abstract <g>class <n>Distribution <c>extends <n>DistributionSerializerPeer<o><
-  <n>number<o>[]
-> {
-  <c>protected override <m>serialize<o>(<l>input<t>: <n>number<o>[]) <e>{
-    <d>return <l>input
-<e>  }
+export<c> abstract<h> class<n> Distribution<c> extends<n> DistributionSerializerPeer<o><<n>
+  number<o>[]
+> {<c>
+  protected override<m> serialize<o>(<d>input<t>:<n> number<o>[]) <e>{<l>
+    return<d> input<e>
+  }<c>
 
-  <c>protected override <m>deserialize<o>(<l>serialized<t>: <n>number<o>[]) <e>{
-    <d>return <l>serialized
-<e>  }<o>
+  protected override<m> deserialize<o>(<d>serialized<t>:<n> number<o>[]) <e>{<l>
+    return<d> serialized<e>
+  }<o>
 }
