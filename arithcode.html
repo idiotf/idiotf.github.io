@@ -1,17 +1,19 @@
-<!doctype html><html onclick="document.documentElement.requestFullscreen(),navigator.wakeLock.request('screen'),screen.orientation.lock('landscape-primary')"lang=ko><meta charset=utf-8><style>@keyframes e{to{transform:translate(0,calc(100vh - 5604px))}}body{user-select:none;touch-action:none;position:fixed;background:#121314;margin:9px;animation:e 52.5s infinite linear;font:14px/19px consolas,monospace;white-space:pre}e{color:#c9d1d9}t{color:#d4d4d4}r{color:#79c0ff}n{color:#4ec9b0}o{color:#bbbebf}c{color:#569cd6}d{color:#ffa657}l{color:#c586c0}g{color:#a5d6ff}h{color:#ff7b72}m{color:#d2a8ff}x{color:#b5cea8}f{color:#8b949e}</style><l>import<e> { ArithmeticRange, ArithmeticValue }<l> from<g> './values'<l>
+<!doctype html><html onclick="document.documentElement.requestFullscreen(),navigator.wakeLock.request('screen'),screen.orientation.lock('landscape-primary')"lang=ko><meta charset=utf-8><style>@keyframes e{to{transform:translate(0,calc(100vh - 5680px))}}body{user-select:none;touch-action:none;position:fixed;background:#121314;margin:9px;animation:e 53.26s infinite linear;font:14px/19px consolas,monospace;white-space:pre}e{color:#c9d1d9}t{color:#d4d4d4}r{color:#79c0ff}n{color:#4ec9b0}o{color:#bbbebf}c{color:#569cd6}d{color:#ffa657}l{color:#c586c0}g{color:#a5d6ff}h{color:#ff7b72}m{color:#d2a8ff}x{color:#b5cea8}f{color:#8b949e}</style><l>import<e> { ArithmeticRange, ArithmeticValue }<l> from<g> './values'<l>
 import<e> { Fraction }<l> from<g> './fraction'<l>
 import type<e> { DistributionLike }<l> from<g> './protocol'<h>
 
 type<n> _TupleIndicesRecursive<o><<n>
-  T<c> extends<n> unknown<o>[],<n>
+  T<c> extends<n> number<o>,<n>
   R<c> extends<n> unknown<o>[],
-> <t>=<n> T<o>[<g>'length'<o>] <c>extends<n> R<o>[<g>'length'<o>]<t>
+> <t>=<n> T<c> extends<n> R<o>[<g>'length'<o>]<t>
   ?<n> R<o>[<n>number<o>]<t>
   :<n> _TupleIndicesRecursive<o><<n>T<o>, [<t>...<n>R<o>, <n>R<o>[<g>'length'<o>]]><h>
 
 type<n> TupleIndices<o><<n>T<c> extends<n> unknown<o>[]> <t>=<n> number<c> extends<n> T<o>[<g>'length'<o>]<t>
   ?<n> number<t>
-  :<n> _TupleIndicesRecursive<o><<n>T<o>, []><h>
+  :<n> T<o>[<g>'length'<o>] <c>extends<n> unknown<t>
+    ?<n> _TupleIndicesRecursive<o><<n>T<o>[<g>'length'<o>], []><t>
+    :<n> never<h>
 
 const<r> zeroFraction<t> =<f> /* #__PURE__ */<c> new<n> ArithmeticValue<o>(<x>0<h>n<o>)<h>
 const<r> oneFraction<t> =<f> /* #__PURE__ */<c> new<n> ArithmeticValue<o>(<x>1<h>n<o>)<l>
@@ -48,7 +50,6 @@ class<n> DistributionCtx<o> {<c>
 
     range<e>.den<t> *=<r> reducedDen
     range<e>.low<t> *=<r> reducedDen
-    range<e>.high<t> *=<r> reducedDen
 
     range<e>.high<t> =<r> range<e>.low<t> +<r> distancePer1<t> *<r> reducedHigh
     range<e>.low<t> =<r> range<e>.low<t> +<r> distancePer1<t> *<r> reducedLow<e>
@@ -91,10 +92,13 @@ class<n> DistributionCtx<o> {<c>
   }<m>
 
   use<o><<n>T<o>>(<d>distribution<t>:<n> DistributionSerializerPeer<o><<n>unknown<o>, <n>T<o>>) <e>{<l>
-    if<e> (<t>!<e>(<d>distribution<c> instanceof<n> DistributionSerializerPeer<e>)) {<l>
+    if<e> (<t>
+      !<e>(<g>'distribution'<c> in<d> distribution<e>) <t>||<c>
+      typeof<d> distribution<e>[<g>'distribution'<e>] <t>!=<g> 'function'<e>
+    ) {<l>
       throw<n> TypeError<e>(<g>
-        'DistributionCtx.use(): '<t> +<g>
-          'The first argument must be DistributionSerializerPeer'<e>,
+        `DistributionCtx.use(): The first argument `<t> +<g>
+          `doesn't look like DistributionSerializerPeer`<e>,
       )
     }<l>
 
@@ -193,7 +197,7 @@ class<n> DistributionCtx<o> {<c>
       this<e>.<m>encodeRange<e>(<r>i<e>, <r>fractionRange<e>)<t>
       ++<r>this<e>.currentArrIdx<l>
 
-      return<r> i<e>
+      return<r> i<l> as<n> TupleIndices<e><[<x>0<e>, <t>...<n>T<e>]>
     } <l>else<e> {<h>
       const<r> value<t> =<r> this<e>.currentInput<l>
       if<e> (<t>!<r>value<e>.isValid) {<l>
@@ -201,7 +205,7 @@ class<n> DistributionCtx<o> {<c>
           `Decoding input is out of range 0 ~ 1 (received <c>${<r>value<c>}<g>)`<e>,
         )
       }<l>
-      return<r> this<e>.<m>decodeRange<e>(<r>value<e>, <r>fractionRange<e>)
+      return<r> this<e>.<m>decodeRange<e>(<r>value<e>, <r>fractionRange<e>) <l>as<n> TupleIndices<e><[<x>0<e>, <t>...<n>T<e>]>
     }
   }<o>
 }<l>
